@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/style.css">
+    <title>Task Management</title>
+</head>
+<body>
+
+    <div class="main">
+        <div class="primary">
+            <div>
+                <h1>Task Management</h1>
+            </div>
+
+            {% if messages %}
+                <div>
+                    {% for message in messages %}
+                        <p class="{{ message.tags }}">{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div>
+                <form method="post" action="{% url 'home' %}">
+                    {% csrf_token %}
+                    {% if edit_id %}
+                        <input type="hidden" name="task_id" value="{{ edit_id.id }}">
+
+                        Title: <input type="text" name="title" value="{{ edit_id.title }}" id="">
+                        Details: <textarea name="details" id="">{{ edit_id.detail }}</textarea>
+                        Due: <input type="date" name="due_date" value="{{ edit_id.due_date|date:'Y-m-d' }}" id="">
+                        <select name="priority" id="">
+                            <option value="High" {% if edit_id.priority == 'High' %}selected{% endif %}>High</option>
+                            <option value="Medium" {% if edit_id.priority == 'Medium' %}selected{% endif %}>Medium</option>
+                            <option value="Low" {% if edit_id.priority == 'Low' %}selected{% endif %}>Low</option>
+                        </select>
+
+                        <button type="submit" name="update">Update</button>
+                    {% else %}
+                        Title: <input type="text" name="title" id="">
+                        Details: <textarea name="details" id=""></textarea>
+                        Due: <input type="date" name="due_date" id="">
+                        <select name="priority" id="">
+                            <option value="High">High</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Low">Low</option>
+                        </select>
+                        <button type="submit" name="create">Create</button>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+        <hr>
+        <h2>Tasks List</h2>
+        <div class="secondary">
+            {% for task in tasks %}
+                <div class="card">
+                    <div class="card-title">
+                        <span class="title2">{{ task.title }}</span> - {{ task.priority }}
+                        <br>
+                        Due: {{ task.due_date }}
+                    </div>
+                    <hr>
+                    <div class="card-body">
+                        {{ task.detail }} <br> <br>
+                        <button><a href="{% url 'edit' task.id %}">Edit</a></button>
+                        <form method="post" action="{% url 'delete' task.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit">Delete</button>
+                            <input type="checkbox" name="completed" id="" {% if task.completed %} checked {% endif %}>
+                        </form> 
+                    </div>
+                </div>
+            {% endfor %}
+        </div>    
+    </div>
+</body>
+</html>
